@@ -9,11 +9,17 @@ import (
 	"mypackage/config"
 
 	"github.com/gin-contrib/cors"
+
+	// _ "github.com/go-sql-driver/mysql"
+	// "github.com/jinzhu/gorm"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-	// "gorm.io/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
+
+var Db *gorm.DB
+
+var err error
 
 type Meigen struct {
 	gorm.Model
@@ -27,7 +33,8 @@ func main() {
 	fmt.Println(config.Config.LogFile)
 	db := sqlConnect()
 	db.AutoMigrate(&Meigen{})
-	defer db.Close()
+	db_v2, _ := db.DB()
+	defer db_v2.Close()
 
 	router := gin.Default()
 
@@ -39,7 +46,7 @@ func main() {
 
 	router.GET("/meigens", func(c *gin.Context) {
 		db := sqlConnect()
-		defer db.Close()
+		defer db_v2.Close()
 
 		var results []Meigen
 		db.Order("created_at asc").Find(&results)
@@ -54,7 +61,7 @@ func main() {
 
 	router.GET("/meigens/:id", func(c *gin.Context) {
 		db := sqlConnect()
-		defer db.Close()
+		defer db_v2.Close()
 
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
@@ -62,7 +69,8 @@ func main() {
 			panic("id is not a number")
 		}
 		var meigen Meigen
-		if db.First(&meigen, id).RecordNotFound() {
+		err1 := db.First(&meigen, id).Error
+		if err1 != nil {
 			c.JSON(http.StatusNotFound, "Not Found")
 		} else {
 			c.JSON(http.StatusOK, meigen)
@@ -71,7 +79,7 @@ func main() {
 
 	router.POST("/meigens", func(c *gin.Context) {
 		db := sqlConnect()
-		defer db.Close()
+		defer db_v2.Close()
 
 		var req Meigen
 		c.BindJSON(&req)
@@ -84,7 +92,7 @@ func main() {
 
 	router.DELETE("/meigens/:id", func(c *gin.Context) {
 		db := sqlConnect()
-		defer db.Close()
+		defer db_v2.Close()
 
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
@@ -93,7 +101,8 @@ func main() {
 		}
 
 		var meigen Meigen
-		if db.First(&meigen, id).RecordNotFound() {
+		err1 := db.First(&meigen, id).Error
+		if err1 != nil {
 			c.JSON(http.StatusNotFound, "Not Found")
 		} else {
 			db.Delete(&meigen)
@@ -106,16 +115,18 @@ func main() {
 }
 
 func sqlConnect() (database *gorm.DB) {
-	DBMS := "mysql"
+	// DBMS := "mysql"
 	USER := "usr"
 	PASS := "password"
 	PROTOCOL := "tcp(db:3306)"
 	DBNAME := "golang_todo_app_db"
 
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
+	// CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
+	dsn := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 
 	count := 0
-	db, err := gorm.Open(DBMS, CONNECT)
+	// db, err := gorm.Open(DBMS, CONNECT)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		for {
 			if err == nil {
@@ -129,7 +140,8 @@ func sqlConnect() (database *gorm.DB) {
 				fmt.Println("")
 				panic(err)
 			}
-			db, err = gorm.Open(DBMS, CONNECT)
+			// db, err = gorm.Open(DBMS, CONNECT)
+			db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		}
 	}
 
