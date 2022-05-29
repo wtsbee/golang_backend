@@ -9,9 +9,6 @@ import (
 	"mypackage/config"
 
 	"github.com/gin-contrib/cors"
-
-	// _ "github.com/go-sql-driver/mysql"
-	// "github.com/jinzhu/gorm"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -26,14 +23,18 @@ type Meigen struct {
 	Meigen string
 }
 
+func init() {
+	Db = sqlConnect()
+}
+
 func main() {
 	fmt.Println("***********************************")
 	fmt.Println(config.Config.SQLDriver)
 	fmt.Println(config.Config.DbName)
 	fmt.Println(config.Config.LogFile)
-	db := sqlConnect()
-	db.AutoMigrate(&Meigen{})
-	db_v2, _ := db.DB()
+	// db := sqlConnect()
+	Db.AutoMigrate(&Meigen{})
+	db_v2, _ := Db.DB()
 	defer db_v2.Close()
 
 	router := gin.Default()
@@ -45,11 +46,11 @@ func main() {
 	}))
 
 	router.GET("/meigens", func(c *gin.Context) {
-		db := sqlConnect()
-		defer db_v2.Close()
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
 		var results []Meigen
-		db.Order("created_at asc").Find(&results)
+		Db.Order("created_at asc").Find(&results)
 
 		meigens := []Meigen{}
 		for _, v := range results {
@@ -60,8 +61,8 @@ func main() {
 	})
 
 	router.GET("/meigens/:id", func(c *gin.Context) {
-		db := sqlConnect()
-		defer db_v2.Close()
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
@@ -69,7 +70,7 @@ func main() {
 			panic("id is not a number")
 		}
 		var meigen Meigen
-		err1 := db.First(&meigen, id).Error
+		err1 := Db.First(&meigen, id).Error
 		if err1 != nil {
 			c.JSON(http.StatusNotFound, "Not Found")
 		} else {
@@ -78,21 +79,21 @@ func main() {
 	})
 
 	router.POST("/meigens", func(c *gin.Context) {
-		db := sqlConnect()
-		defer db_v2.Close()
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
 		var req Meigen
 		c.BindJSON(&req)
 
 		meigen := &Meigen{Meigen: req.Meigen}
-		db.Create(meigen)
+		Db.Create(meigen)
 
 		c.JSON(200, meigen)
 	})
 
 	router.DELETE("/meigens/:id", func(c *gin.Context) {
-		db := sqlConnect()
-		defer db_v2.Close()
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
@@ -101,11 +102,11 @@ func main() {
 		}
 
 		var meigen Meigen
-		err1 := db.First(&meigen, id).Error
+		err1 := Db.First(&meigen, id).Error
 		if err1 != nil {
 			c.JSON(http.StatusNotFound, "Not Found")
 		} else {
-			db.Delete(&meigen)
+			Db.Delete(&meigen)
 			c.JSON(http.StatusOK, meigen)
 		}
 	})
