@@ -1,21 +1,17 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
-	"time"
 
 	"mypackage/app/route"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var Db *gorm.DB
+// var Db *gorm.DB
 
-var err error
+// var err error
 
 type Meigen struct {
 	gorm.Model
@@ -43,91 +39,96 @@ func MeigensController() {
 		c.JSON(http.StatusOK, gin.H{"meigens": meigens})
 	})
 
-	router.GET("/meigens/:id", func(c *gin.Context) {
-		// db := sqlConnect()
-		// defer db_v2.Close()
+	// router.GET("/meigens/:id", func(c *gin.Context) {
+	// 	// db := sqlConnect()
+	// 	// defer db_v2.Close()
 
-		n := c.Param("id")
-		id, err := strconv.Atoi(n)
-		if err != nil {
-			panic("id is not a number")
-		}
-		var meigen Meigen
-		err1 := Db.First(&meigen, id).Error
-		if err1 != nil {
-			c.JSON(http.StatusNotFound, "Not Found")
-		} else {
-			c.JSON(http.StatusOK, meigen)
-		}
-	})
+	// 	n := c.Param("id")
+	// 	id, err := strconv.Atoi(n)
+	// 	if err != nil {
+	// 		panic("id is not a number")
+	// 	}
+	// 	var meigen Meigen
+	// 	err1 := Db.First(&meigen, id).Error
+	// 	if err1 != nil {
+	// 		c.JSON(http.StatusNotFound, "Not Found")
+	// 	} else {
+	// 		c.JSON(http.StatusOK, meigen)
+	// 	}
+	// })
 
-	router.POST("/meigens", func(c *gin.Context) {
-		// db := sqlConnect()
-		// defer db_v2.Close()
+	// router.POST("/meigens", func(c *gin.Context) {
+	// 	// db := sqlConnect()
+	// 	// defer db_v2.Close()
 
-		var req Meigen
-		c.BindJSON(&req)
+	// 	// var form map[string]interface{}
+	// 	// c.BindJSON(&form)
+	// 	// fmt.Println(form)
 
-		meigen := &Meigen{Meigen: req.Meigen}
-		Db.Create(meigen)
+	// 	var req Meigen
+	// 	c.BindJSON(&req)
+	// 	fmt.Println(req)
 
-		c.JSON(200, meigen)
-	})
+	// 	meigen := &Meigen{Meigen: req.Meigen}
+	// 	Db.Create(meigen)
 
-	router.DELETE("/meigens/:id", func(c *gin.Context) {
-		// db := sqlConnect()
-		// defer db_v2.Close()
+	// 	c.JSON(200, meigen)
+	// })
 
-		n := c.Param("id")
-		id, err := strconv.Atoi(n)
-		if err != nil {
-			panic("id is not a number")
-		}
+	// router.DELETE("/meigens/:id", func(c *gin.Context) {
+	// 	// db := sqlConnect()
+	// 	// defer db_v2.Close()
 
-		var meigen Meigen
-		err1 := Db.First(&meigen, id).Error
-		if err1 != nil {
-			c.JSON(http.StatusNotFound, "Not Found")
-		} else {
-			Db.Delete(&meigen)
-			c.JSON(http.StatusOK, meigen)
-		}
-	})
+	// 	n := c.Param("id")
+	// 	id, err := strconv.Atoi(n)
+	// 	if err != nil {
+	// 		panic("id is not a number")
+	// 	}
 
-	// db.DropTable("meigens")
+	// 	var meigen Meigen
+	// 	err1 := Db.First(&meigen, id).Error
+	// 	if err1 != nil {
+	// 		c.JSON(http.StatusNotFound, "Not Found")
+	// 	} else {
+	// 		Db.Delete(&meigen)
+	// 		c.JSON(http.StatusOK, meigen)
+	// 	}
+	// })
+
+	// // db.DropTable("meigens")
 	router.Run()
 }
 
-func sqlConnect() (database *gorm.DB) {
-	// DBMS := "mysql"
-	USER := "usr"
-	PASS := "password"
-	PROTOCOL := "tcp(db:3306)"
-	DBNAME := "golang_todo_app_db"
+// func sqlConnect() (database *gorm.DB) {
+// 	// DBMS := "mysql"
+// 	USER := "usr"
+// 	PASS := "password"
+// 	PROTOCOL := "tcp(db:3306)"
+// 	DBNAME := "golang_todo_app_db"
 
-	// CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
-	dsn := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
+// 	// CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
+// 	dsn := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 
-	count := 0
-	// db, err := gorm.Open(DBMS, CONNECT)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		for {
-			if err == nil {
-				fmt.Println("")
-				break
-			}
-			fmt.Print(".")
-			time.Sleep(time.Second)
-			count++
-			if count > 180 {
-				fmt.Println("")
-				panic(err)
-			}
-			// db, err = gorm.Open(DBMS, CONNECT)
-			db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-		}
-	}
+// 	count := 0
+// 	// db, err := gorm.Open(DBMS, CONNECT)
+// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// 	if err != nil {
+// 		for {
+// 			if err == nil {
+// 				fmt.Println("")
+// 				break
+// 			}
+// 			fmt.Print(".")
+// 			time.Sleep(time.Second)
+// 			count++
+// 			if count > 180 {
+// 				fmt.Println("")
+// 				panic(err)
+// 			}
+// 			// db, err = gorm.Open(DBMS, CONNECT)
+// 			db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// 		}
+// 	}
 
-	return db
-}
+// 	return db
+// }

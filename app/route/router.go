@@ -10,7 +10,7 @@ func RouterCommon() *gin.Engine {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:3000"},
-		AllowMethods: []string{"GET", "POST", "DELETE", "OPTIONS"},
+		AllowMethods: []string{"GET", "POST", "DELETE", "PUT", "OPTIONS"},
 		AllowHeaders: []string{"*"},
 	}))
 	return router
