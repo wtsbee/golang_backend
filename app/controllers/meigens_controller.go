@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"mypackage/app/route"
 
@@ -22,6 +24,19 @@ func init() {
 	Db = sqlConnect()
 }
 
+func GetMeigens(c *gin.Context) {
+	Db.AutoMigrate(&Meigen{})
+	var results []Meigen
+	Db.Order("created_at asc").Find(&results)
+
+	meigens := []Meigen{}
+	for _, v := range results {
+		meigens = append(meigens, v)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"meigens": meigens})
+}
+
 func MeigensController() {
 	Db.AutoMigrate(&Meigen{})
 	router := route.RouterCommon()
@@ -39,63 +54,63 @@ func MeigensController() {
 		c.JSON(http.StatusOK, gin.H{"meigens": meigens})
 	})
 
-	// router.GET("/meigens/:id", func(c *gin.Context) {
-	// 	// db := sqlConnect()
-	// 	// defer db_v2.Close()
+	router.GET("/meigens/:id", func(c *gin.Context) {
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("id is not a number")
-	// 	}
-	// 	var meigen Meigen
-	// 	err1 := Db.First(&meigen, id).Error
-	// 	if err1 != nil {
-	// 		c.JSON(http.StatusNotFound, "Not Found")
-	// 	} else {
-	// 		c.JSON(http.StatusOK, meigen)
-	// 	}
-	// })
+		n := c.Param("id")
+		id, err := strconv.Atoi(n)
+		if err != nil {
+			panic("id is not a number")
+		}
+		var meigen Meigen
+		err1 := Db.First(&meigen, id).Error
+		if err1 != nil {
+			c.JSON(http.StatusNotFound, "Not Found")
+		} else {
+			c.JSON(http.StatusOK, meigen)
+		}
+	})
 
-	// router.POST("/meigens", func(c *gin.Context) {
-	// 	// db := sqlConnect()
-	// 	// defer db_v2.Close()
+	router.POST("/meigens", func(c *gin.Context) {
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
-	// 	// var form map[string]interface{}
-	// 	// c.BindJSON(&form)
-	// 	// fmt.Println(form)
+		// var form map[string]interface{}
+		// c.BindJSON(&form)
+		// fmt.Println(form)
 
-	// 	var req Meigen
-	// 	c.BindJSON(&req)
-	// 	fmt.Println(req)
+		var req Meigen
+		c.BindJSON(&req)
+		fmt.Println(req)
 
-	// 	meigen := &Meigen{Meigen: req.Meigen}
-	// 	Db.Create(meigen)
+		meigen := &Meigen{Meigen: req.Meigen}
+		Db.Create(meigen)
 
-	// 	c.JSON(200, meigen)
-	// })
+		c.JSON(200, meigen)
+	})
 
-	// router.DELETE("/meigens/:id", func(c *gin.Context) {
-	// 	// db := sqlConnect()
-	// 	// defer db_v2.Close()
+	router.DELETE("/meigens/:id", func(c *gin.Context) {
+		// db := sqlConnect()
+		// defer db_v2.Close()
 
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("id is not a number")
-	// 	}
+		n := c.Param("id")
+		id, err := strconv.Atoi(n)
+		if err != nil {
+			panic("id is not a number")
+		}
 
-	// 	var meigen Meigen
-	// 	err1 := Db.First(&meigen, id).Error
-	// 	if err1 != nil {
-	// 		c.JSON(http.StatusNotFound, "Not Found")
-	// 	} else {
-	// 		Db.Delete(&meigen)
-	// 		c.JSON(http.StatusOK, meigen)
-	// 	}
-	// })
+		var meigen Meigen
+		err1 := Db.First(&meigen, id).Error
+		if err1 != nil {
+			c.JSON(http.StatusNotFound, "Not Found")
+		} else {
+			Db.Delete(&meigen)
+			c.JSON(http.StatusOK, meigen)
+		}
+	})
 
-	// // db.DropTable("meigens")
+	// db.DropTable("meigens")
 	router.Run()
 }
 

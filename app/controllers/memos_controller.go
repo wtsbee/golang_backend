@@ -26,6 +26,90 @@ func init() {
 	Db = sqlConnect()
 }
 
+func GetMemos(c *gin.Context) {
+	Db.AutoMigrate(&Memo{})
+	var results []Memo
+	Db.Order("created_at asc").Find(&results)
+
+	memos := []Memo{}
+	for _, v := range results {
+		memos = append(memos, v)
+	}
+
+	// c.JSON(http.StatusOK, gin.H{"memos": memos})
+	c.JSON(http.StatusOK, memos)
+}
+
+func GetMemo(c *gin.Context) {
+	n := c.Param("id")
+	id, err := strconv.Atoi(n)
+	if err != nil {
+		panic("id is not a number")
+	}
+	var memo Memo
+	err1 := Db.First(&memo, id).Error
+	if err1 != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+	} else {
+		c.JSON(http.StatusOK, memo)
+	}
+}
+
+func CreateMemo(c *gin.Context) {
+	var req Memo
+	c.BindJSON(&req)
+	fmt.Println(req)
+
+	memo := &Memo{Title: req.Title}
+	Db.Create(memo)
+
+	c.JSON(200, memo)
+}
+
+func DeleteMemo(c *gin.Context) {
+	n := c.Param("id")
+	id, err := strconv.Atoi(n)
+	if err != nil {
+		panic("id is not a number")
+	}
+
+	var memo Memo
+	err1 := Db.First(&memo, id).Error
+	if err1 != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+	} else {
+		Db.Delete(&memo)
+		c.JSON(http.StatusOK, memo)
+	}
+}
+
+func EditMemo(c *gin.Context) {
+	// b, err := c.GetRawData()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println(b)
+
+	n := c.PostForm("id")
+	title := c.PostForm("title")
+	// fmt.Println(n, title)
+	id, err := strconv.Atoi(n)
+	if err != nil {
+		panic("id is not a number")
+		// fmt.Println("エラー")
+	}
+
+	var memo Memo
+	err1 := Db.First(&memo, id).Error
+	if err1 != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+	} else {
+		memo.Title = title
+		Db.Save(&memo)
+		c.JSON(http.StatusOK, memo)
+	}
+}
+
 func MemosController() {
 	fmt.Println("++++++++++++++++++")
 	Db.AutoMigrate(&Memo{})

@@ -5,6 +5,8 @@ import (
 )
 
 func main() {
-	controllers.MemosController()
-	controllers.MeigensController()
+	// controllers.MemosController()
+	// controllers.MeigensController()
+	router := controllers.GetRouter()
+	router.Run()
 }
