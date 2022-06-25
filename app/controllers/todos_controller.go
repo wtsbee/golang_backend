@@ -79,19 +79,21 @@ func DeleteTodo(c *gin.Context) {
 }
 
 func UpdateTodo(c *gin.Context) {
-	n := c.PostForm("id")
-	title := c.PostForm("title")
-	id, err := strconv.Atoi(n)
+	// n := c.PostForm("id")
+	// title := c.PostForm("title")
+	var req Todo
+	err = c.BindJSON(&req)
 	if err != nil {
-		panic("id is not a number")
+		c.String(http.StatusBadRequest, "Bad request")
+		return
 	}
 
 	var todo Todo
-	err1 := Db.First(&todo, id).Error
+	err1 := Db.First(&todo, req.ID).Error
 	if err1 != nil {
 		c.JSON(http.StatusNotFound, "Not Found")
 	} else {
-		todo.Title = title
+		todo.Title = req.Title
 		Db.Save(&todo)
 		c.JSON(http.StatusOK, todo)
 	}
