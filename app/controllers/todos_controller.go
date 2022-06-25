@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"mypackage/app/models"
 	"net/http"
 	"strconv"
 
@@ -20,16 +21,19 @@ func init() {
 }
 
 func GetTodos(c *gin.Context) {
-	Db.AutoMigrate(&Todo{})
-	var results []Todo
-	Db.Find(&results)
+	// Db.AutoMigrate(&Todo{})
+	// var results []Todo
+	// fmt.Println("bbbbbbbbbbbbbbbb")
+	// Db.Find(&results)
 
-	todos := []Todo{}
-	for _, v := range results {
-		todos = append(todos, v)
-	}
+	results := models.GetAllTTodos()
 
-	c.JSON(http.StatusOK, todos)
+	// todos := []Todo{}
+	// for _, v := range results {
+	// 	todos = append(todos, v)
+	// }
+
+	c.JSON(http.StatusOK, results)
 }
 
 func GetTodo(c *gin.Context) {
