@@ -31,6 +31,7 @@ func GetRouter() *gin.Engine {
 	r.POST("/todos", CreateTodo)
 	r.DELETE("/todo/:id", DeleteTodo)
 	r.POST("/todo/:id", UpdateTodo)
+	r.POST("/todo/upload_file", UploadFile)
 
 	return r
 }
