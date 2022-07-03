@@ -23,15 +23,9 @@ func init() {
 func GetTodos(c *gin.Context) {
 	// Db.AutoMigrate(&Todo{})
 	// var results []Todo
-	// fmt.Println("bbbbbbbbbbbbbbbb")
 	// Db.Find(&results)
 
 	results := models.GetAllTTodos()
-
-	// todos := []Todo{}
-	// for _, v := range results {
-	// 	todos = append(todos, v)
-	// }
 
 	c.JSON(http.StatusOK, results)
 }

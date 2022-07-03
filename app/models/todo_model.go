@@ -49,7 +49,6 @@ func sqlConnect() (database *gorm.DB) {
 
 func GetAllTTodos() []Todo {
 	var todos []Todo
-	fmt.Println("aa")
 	db := sqlConnect()
 	db.Find(&todos)
 	return todos
