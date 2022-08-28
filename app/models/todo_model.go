@@ -10,7 +10,8 @@ import (
 
 type Todo struct {
 	gorm.Model
-	Title string
+	Title  string
+	Source []byte `gorm:"size:70000"`
 }
 
 func sqlConnect() (database *gorm.DB) {

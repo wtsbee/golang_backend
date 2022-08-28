@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
+	"image/jpeg"
 	"io"
 	"log"
 	"mypackage/app/models"
@@ -15,7 +17,12 @@ import (
 
 type Todo struct {
 	gorm.Model
-	Title string
+	Title  string
+	Source []byte `gorm:"size:70000"`
+}
+
+type Test struct {
+	Source []byte
 }
 
 func init() {
@@ -29,7 +36,12 @@ func GetTodos(c *gin.Context) {
 	// Db.Find(&results)
 
 	results := models.GetAllTTodos()
+	fmt.Println("****************")
+	// fmt.Println(len(results))
+	// fmt.Println(results[len(results)-1])
+	// fmt.Println(results[len(results)-1].Source)
 
+	// c.JSON(http.StatusOK, gin.H{"Source": results[len(results)-1].Source})
 	c.JSON(http.StatusOK, results)
 }
 
@@ -54,7 +66,34 @@ func CreateTodo(c *gin.Context) {
 	c.BindJSON(&req)
 	fmt.Println(req)
 
-	todo := &Todo{Title: req.Title}
+	file, err := os.Open("/app/images/himawari.jpeg")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("*********CreateTodo**Start***********")
+	fmt.Println(file)
+	fmt.Printf("%T\n", file)
+	fmt.Println("*********CreateTodo**End***********")
+
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%T\n", img)
+	file.Close()
+
+	buffer := new(bytes.Buffer)
+	if err := jpeg.Encode(buffer, img, nil); err != nil {
+		log.Println("unable to encode image.")
+	}
+	imageBytes := buffer.Bytes()
+
+	// ｆ := &File{Source: imageBytes}
+	// db.Create(ｆ)
+	// db.Close()
+
+	todo := &Todo{Title: req.Title, Source: imageBytes}
 	Db.Create(todo)
 
 	c.JSON(http.StatusOK, todo)
@@ -101,6 +140,7 @@ func UpdateTodo(c *gin.Context) {
 }
 
 func UploadFile(c *gin.Context) {
+	fmt.Printf("%T\n", c)
 	file, header, err := c.Request.FormFile("image")
 	if err != nil {
 		c.String(http.StatusBadRequest, "Bad request")
@@ -117,6 +157,28 @@ func UploadFile(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// file, err := os.Open("image.JPG")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// img, err := jpeg.Decode(file)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// file.Close()
+
+	// buffer := new(bytes.Buffer)
+	// if err := jpeg.Encode(buffer, img, nil); err != nil {
+	// 	log.Println("unable to encode image.")
+	// }
+	// imageBytes := buffer.Bytes()
+
+	// ｆ := &File{Source: imageBytes}
+	// db.Create(ｆ)
+	// db.Close()
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": "ok",
 	})
